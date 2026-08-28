@@ -264,7 +264,7 @@ export const ProductPage = () => {
           {isLoadingProducts ? (
             <div>Loading products...</div>
           ) : (
-            <div className="row row-cols-1 row-cols-md-4 g-3 mx-1">
+            <div className="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-3 mx-1">
               {products.map((product) => (
                 <Product
                   product={product}
