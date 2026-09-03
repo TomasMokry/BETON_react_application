@@ -17,9 +17,7 @@ export const AdminProductsPage = () => {
   // Load categories once
   useEffect(() => {
     const fetchCategories = async () => {
-      const response = await fetch(
-        "https://beton-production.up.railway.app/categories",
-      );
+      const response = await fetch("http://localhost:8080/categories");
       if (!response.ok) throw new Error("Cannot load categories");
 
       const data = await response.json();
@@ -34,7 +32,7 @@ export const AdminProductsPage = () => {
     setIsLoadingProducts(true);
 
     const fetchProducts = async () => {
-      let url = "https://beton-production.up.railway.app/products";
+      let url = "http://localhost:8080/products";
 
       if (selectedCategory !== null) {
         url += `?categoryId=${selectedCategory}`;

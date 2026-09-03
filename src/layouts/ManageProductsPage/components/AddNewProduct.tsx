@@ -34,7 +34,7 @@ export const AddNewProduct = () => {
   ];
 
   async function submitNewProduct() {
-    const url = `https://beton-production.up.railway.app/products`;
+    const url = `http://localhost:8080/products`;
 
     if (
       name.trim() !== "" &&

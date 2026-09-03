@@ -8,32 +8,46 @@ import { EditProduct } from "./layouts/ManageProductsPage/components/EditProduct
 import { AddNewProduct } from "./layouts/ManageProductsPage/components/AddNewProduct";
 import { HomePage } from "./layouts/HomePage/HomePage";
 import { OrdersPage } from "./layouts/SearchProductPage/OrdersPage";
+import { AuthProvider } from "./auth/AuthContext";
+import { ProtectedPage } from "./layouts/protectedPage/ProtectedPage";
+import { PrivateRoute } from "./auth/PrivateRoute";
 
 function App() {
   return (
-    <div className="d-flex flex-column min-vh-100">
-      <Navbar />
+    <AuthProvider>
+      <div className="d-flex flex-column min-vh-100">
+        <Navbar />
 
-      <div className="flex-grow-1">
-        <Routes>
-          <Route path="/" element={<Navigate to="/home" replace />} />
+        <div className="flex-grow-1">
+          <Routes>
+            <Route path="/" element={<Navigate to="/home" replace />} />
 
-          <Route path="/home" element={<HomePage />} />
+            <Route path="/home" element={<HomePage />} />
 
-          <Route path="/products" element={<ProductPage />} />
+            <Route path="/products" element={<ProductPage />} />
 
-          <Route path="/products/edit/:id" element={<EditProduct />} />
+            <Route path="/products/edit/:id" element={<EditProduct />} />
 
-          <Route path="/products/add" element={<AddNewProduct />} />
+            <Route path="/products/add" element={<AddNewProduct />} />
 
-          <Route path="/orders" element={<OrdersPage />} />
+            <Route path="/orders" element={<OrdersPage />} />
 
-          <Route path="/admin" element={<AdminProductsPage />} />
-        </Routes>
+            <Route path="/admin" element={<AdminProductsPage />} />
+
+            <Route
+              path="/protectedPage"
+              element={
+                <PrivateRoute>
+                  <ProtectedPage />
+                </PrivateRoute>
+              }
+            />
+          </Routes>
+        </div>
+
+        <Footer />
       </div>
-
-      <Footer />
-    </div>
+    </AuthProvider>
   );
 }
 

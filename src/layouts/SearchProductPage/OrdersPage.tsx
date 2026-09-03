@@ -9,9 +9,7 @@ export const OrdersPage = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await fetch(
-          "https://beton-production.up.railway.app/orders",
-        );
+        const response = await fetch("http://localhost:8080/orders");
 
         if (!response.ok) {
           throw new Error("Cannot load orders");

@@ -18,15 +18,12 @@ export const ProductPage = () => {
 
   // CREATE CART
   const createCart = async () => {
-    const response = await fetch(
-      "https://beton-production.up.railway.app/carts",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+    const response = await fetch("http://localhost:8080/carts", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
-    );
+    });
 
     if (!response.ok) {
       throw new Error("Cannot create cart");
@@ -47,9 +44,7 @@ export const ProductPage = () => {
       throw new Error("No cart ID");
     }
 
-    const response = await fetch(
-      `https://beton-production.up.railway.app/carts/${cartId}`,
-    );
+    const response = await fetch(`http://localhost:8080/carts/${cartId}`);
 
     if (!response.ok) {
       throw new Error("Cannot load cart");
@@ -68,7 +63,7 @@ export const ProductPage = () => {
 
     try {
       const response = await fetch(
-        `https://beton-production.up.railway.app/carts/${cart.id}/items`,
+        `http://localhost:8080/carts/${cart.id}/items`,
         {
           method: "POST",
           headers: {
@@ -95,7 +90,7 @@ export const ProductPage = () => {
 
     try {
       const response = await fetch(
-        `https://beton-production.up.railway.app/carts/${cart.id}/items/${productId}`,
+        `http://localhost:8080/carts/${cart.id}/items/${productId}`,
         {
           method: "DELETE",
         },
@@ -117,19 +112,16 @@ export const ProductPage = () => {
     }
 
     try {
-      const response = await fetch(
-        "https://beton-production.up.railway.app/checkout",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            cartId: cart.id,
-            paymentMethod: paymentMethod,
-          }),
+      const response = await fetch("http://localhost:8080/checkout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({
+          cartId: cart.id,
+          paymentMethod: paymentMethod,
+        }),
+      });
 
       if (!response.ok) {
         throw new Error("Checkout failed");
@@ -154,7 +146,7 @@ export const ProductPage = () => {
 
     try {
       const response = await fetch(
-        `https://beton-production.up.railway.app/carts/${cart.id}/items`,
+        `http://localhost:8080/carts/${cart.id}/items`,
         {
           method: "DELETE",
         },
@@ -198,9 +190,7 @@ export const ProductPage = () => {
   // Load categories ONCE
   useEffect(() => {
     const fetchCategories = async () => {
-      const response = await fetch(
-        "https://beton-production.up.railway.app/categories",
-      );
+      const response = await fetch("http://localhost:8080/categories");
       if (!response.ok) throw new Error("Cannot load categories");
 
       const data: CategoryModel[] = await response.json();
@@ -215,7 +205,7 @@ export const ProductPage = () => {
     setIsLoadingProducts(true);
 
     try {
-      let url = "https://beton-production.up.railway.app/products";
+      let url = "http://localhost:8080/products";
 
       if (selectedCategory !== null) {
         url += `?categoryId=${selectedCategory}`;

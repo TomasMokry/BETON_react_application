@@ -42,9 +42,7 @@ export const EditProduct = () => {
     }
 
     async function loadProduct() {
-      const res = await fetch(
-        `https://beton-production.up.railway.app/products/${id}`,
-      );
+      const res = await fetch(`http://localhost:8080/products/${id}`);
 
       if (!res.ok) {
         console.error("Failed to load product");
@@ -74,7 +72,7 @@ export const EditProduct = () => {
   }, [id]);
 
   async function submitEdit() {
-    const url = `https://beton-production.up.railway.app/products/${id}`;
+    const url = `http://localhost:8080/products/${id}`;
 
     if (
       name.trim() !== "" &&
