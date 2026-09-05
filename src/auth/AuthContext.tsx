@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
+import { BASE_URL } from "../config";
 
 interface User {
   id: string;
@@ -64,7 +65,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        const response = await fetch("http://localhost:8080/auth/refresh", {
+        const response = await fetch(`${BASE_URL}/auth/refresh`, {
           method: "POST",
           credentials: "include",
         });
@@ -87,7 +88,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const login = async (email: string, password: string) => {
-    const response = await fetch("http://localhost:8080/auth/login", {
+    const response = await fetch(`${BASE_URL}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -101,7 +102,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
   const logout = async () => {
     try {
-      await fetch("http://localhost:8080/auth/logout", {
+      await fetch(`${BASE_URL}/auth/logout`, {
         method: "POST",
         credentials: "include",
       });
