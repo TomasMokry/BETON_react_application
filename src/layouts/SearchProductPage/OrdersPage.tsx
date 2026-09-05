@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import type OrderModel from "../../models/OrderModel";
 import { Order } from "./components/Order";
+import { fetchWithAuth } from "../../services/fetchWithAuth";
+import { BASE_URL } from "../../config";
 
 export const OrdersPage = () => {
   const [orders, setOrders] = useState<OrderModel[]>([]);
@@ -9,7 +11,7 @@ export const OrdersPage = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await fetch("http://localhost:8080/orders");
+        const response = await fetchWithAuth(`${BASE_URL}/orders`);
 
         if (!response.ok) {
           throw new Error("Cannot load orders");

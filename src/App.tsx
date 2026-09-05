@@ -9,8 +9,8 @@ import { AddNewProduct } from "./layouts/ManageProductsPage/components/AddNewPro
 import { HomePage } from "./layouts/HomePage/HomePage";
 import { OrdersPage } from "./layouts/SearchProductPage/OrdersPage";
 import { AuthProvider } from "./auth/AuthContext";
-import { ProtectedPage } from "./layouts/protectedPage/ProtectedPage";
 import { PrivateRoute } from "./auth/PrivateRoute";
+import { LoginPage } from "./layouts/HomePage/LoginPage";
 
 function App() {
   return (
@@ -24,24 +24,52 @@ function App() {
 
             <Route path="/home" element={<HomePage />} />
 
-            <Route path="/products" element={<ProductPage />} />
-
-            <Route path="/products/edit/:id" element={<EditProduct />} />
-
-            <Route path="/products/add" element={<AddNewProduct />} />
-
-            <Route path="/orders" element={<OrdersPage />} />
-
-            <Route path="/admin" element={<AdminProductsPage />} />
-
             <Route
-              path="/protectedPage"
+              path="/products"
               element={
                 <PrivateRoute>
-                  <ProtectedPage />
+                  <ProductPage />
                 </PrivateRoute>
               }
             />
+
+            <Route
+              path="/products/edit/:id"
+              element={
+                <PrivateRoute>
+                  <EditProduct />
+                </PrivateRoute>
+              }
+            />
+
+            <Route
+              path="/products/add"
+              element={
+                <PrivateRoute>
+                  <AddNewProduct />
+                </PrivateRoute>
+              }
+            />
+
+            <Route
+              path="/orders"
+              element={
+                <PrivateRoute>
+                  <OrdersPage />
+                </PrivateRoute>
+              }
+            />
+
+            <Route
+              path="/admin"
+              element={
+                <PrivateRoute>
+                  <AdminProductsPage />
+                </PrivateRoute>
+              }
+            />
+
+            <Route path="/login" element={<LoginPage />} />
           </Routes>
         </div>
 

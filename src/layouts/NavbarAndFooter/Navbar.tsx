@@ -2,7 +2,7 @@ import { NavLink } from "react-router-dom";
 import { useAuth } from "../../auth/AuthContext";
 
 export const Navbar = () => {
-  const { isAuthenticated, login, logout, user } = useAuth();
+  const { isAuthenticated, logout, user } = useAuth();
 
   return (
     <nav className="navbar navbar-expand-lg navbar-dark header-gradient py-2">
@@ -70,13 +70,9 @@ export const Navbar = () => {
               </>
             ) : (
               <li className="nav-item m-1">
-                <button
-                  type="button"
-                  className="btn btn-outline-light"
-                  onClick={login}
-                >
+                <NavLink to="/login" className="btn btn-outline-light">
                   Sign in
-                </button>
+                </NavLink>
               </li>
             )}
           </ul>

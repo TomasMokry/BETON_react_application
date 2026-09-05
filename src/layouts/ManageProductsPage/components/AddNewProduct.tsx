@@ -1,6 +1,8 @@
 import { useState } from "react";
 import AddProductRequest from "../../../models/AddProductRequest";
 import { useNavigate } from "react-router-dom";
+import { fetchWithAuth } from "../../../services/fetchWithAuth";
+import { BASE_URL } from "../../../config";
 
 export const AddNewProduct = () => {
   // New Product fields
@@ -34,7 +36,7 @@ export const AddNewProduct = () => {
   ];
 
   async function submitNewProduct() {
-    const url = `http://localhost:8080/products`;
+    const url = `${BASE_URL}/products`;
 
     if (
       name.trim() !== "" &&
@@ -71,7 +73,7 @@ export const AddNewProduct = () => {
         body: JSON.stringify(product),
       };
 
-      const response = await fetch(url, requestOptions);
+      const response = await fetchWithAuth(url, requestOptions);
 
       if (!response.ok) {
         throw new Error("Something went wrong");

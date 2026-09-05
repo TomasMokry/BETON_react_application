@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import AddProductRequest from "../../../models/AddProductRequest";
 import { useNavigate, useParams } from "react-router-dom";
+import { fetchWithAuth } from "../../../services/fetchWithAuth";
+import { BASE_URL } from "../../../config";
 
 export const EditProduct = () => {
   const { id } = useParams<{ id: string }>();
@@ -42,7 +44,7 @@ export const EditProduct = () => {
     }
 
     async function loadProduct() {
-      const res = await fetch(`http://localhost:8080/products/${id}`);
+      const res = await fetchWithAuth(`${BASE_URL}/products/${id}`);
 
       if (!res.ok) {
         console.error("Failed to load product");
@@ -72,7 +74,7 @@ export const EditProduct = () => {
   }, [id]);
 
   async function submitEdit() {
-    const url = `http://localhost:8080/products/${id}`;
+    const url = `${BASE_URL}/products/${id}`;
 
     if (
       name.trim() !== "" &&
@@ -109,7 +111,7 @@ export const EditProduct = () => {
         body: JSON.stringify(product),
       };
 
-      const response = await fetch(url, requestOptions);
+      const response = await fetchWithAuth(url, requestOptions);
 
       if (!response.ok) {
         throw new Error("Update failed");

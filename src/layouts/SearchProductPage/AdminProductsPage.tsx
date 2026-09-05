@@ -5,6 +5,8 @@ import CategoryModel from "../../models/CategoryModel";
 import { ProductAdmin } from "./components/ProductAdmin";
 import { CategoryNavbar } from "./components/CategoryNavbar";
 import { SpinnerLoading } from "../utils/SpinnerLoading";
+import { fetchWithAuth } from "../../services/fetchWithAuth";
+import { BASE_URL } from "../../config";
 
 export const AdminProductsPage = () => {
   const [products, setProducts] = useState<ProductModel[]>([]);
@@ -17,7 +19,7 @@ export const AdminProductsPage = () => {
   // Load categories once
   useEffect(() => {
     const fetchCategories = async () => {
-      const response = await fetch("http://localhost:8080/categories");
+      const response = await fetchWithAuth(`${BASE_URL}/categories`);
       if (!response.ok) throw new Error("Cannot load categories");
 
       const data = await response.json();
@@ -32,13 +34,13 @@ export const AdminProductsPage = () => {
     setIsLoadingProducts(true);
 
     const fetchProducts = async () => {
-      let url = "http://localhost:8080/products";
+      let url = `${BASE_URL}/products`;
 
       if (selectedCategory !== null) {
         url += `?categoryId=${selectedCategory}`;
       }
 
-      const response = await fetch(url);
+      const response = await fetchWithAuth(url);
       if (!response.ok) throw new Error("Cannot load products");
 
       const data = await response.json();

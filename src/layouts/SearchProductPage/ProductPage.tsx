@@ -5,6 +5,9 @@ import CategoryModel from "../../models/CategoryModel";
 import { Product } from "./components/Product";
 import { SpinnerLoading } from "../utils/SpinnerLoading";
 import type CartModel from "../../models/CartModel";
+import { fetchWithAuth } from "../../services/fetchWithAuth";
+import { NotificationToast } from "./components/NotificationToast";
+import { BASE_URL } from "../../config";
 
 export const ProductPage = () => {
   const [products, setProducts] = useState<ProductModel[]>([]);
@@ -16,9 +19,12 @@ export const ProductPage = () => {
 
   const [cart, setCart] = useState<CartModel | null>(null);
 
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [showError, setShowError] = useState(false);
+
   // CREATE CART
   const createCart = async () => {
-    const response = await fetch("http://localhost:8080/carts", {
+    const response = await fetchWithAuth(`${BASE_URL}/carts`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -44,7 +50,7 @@ export const ProductPage = () => {
       throw new Error("No cart ID");
     }
 
-    const response = await fetch(`http://localhost:8080/carts/${cartId}`);
+    const response = await fetchWithAuth(`${BASE_URL}/carts/${cartId}`);
 
     if (!response.ok) {
       throw new Error("Cannot load cart");
@@ -62,8 +68,8 @@ export const ProductPage = () => {
     }
 
     try {
-      const response = await fetch(
-        `http://localhost:8080/carts/${cart.id}/items`,
+      const response = await fetchWithAuth(
+        `${BASE_URL}/carts/${cart.id}/items`,
         {
           method: "POST",
           headers: {
@@ -80,6 +86,7 @@ export const ProductPage = () => {
       await fetchCart();
     } catch (err: any) {
       setHttpError(err.message);
+      setShowError(true);
     }
   };
 
@@ -89,8 +96,8 @@ export const ProductPage = () => {
     }
 
     try {
-      const response = await fetch(
-        `http://localhost:8080/carts/${cart.id}/items/${productId}`,
+      const response = await fetchWithAuth(
+        `${BASE_URL}/carts/${cart.id}/items/${productId}`,
         {
           method: "DELETE",
         },
@@ -103,6 +110,7 @@ export const ProductPage = () => {
       await fetchCart();
     } catch (err: any) {
       setHttpError(err.message);
+      setShowError(true);
     }
   };
 
@@ -112,7 +120,7 @@ export const ProductPage = () => {
     }
 
     try {
-      const response = await fetch("http://localhost:8080/checkout", {
+      const response = await fetchWithAuth(`${BASE_URL}/checkout`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -131,11 +139,14 @@ export const ProductPage = () => {
 
       console.log("Checkout successful:", data);
 
+      setShowSuccess(true);
+
       // Refresh cart after successful checkout
       await fetchCart();
       await fetchProducts();
     } catch (err: any) {
       setHttpError(err.message);
+      setShowError(true);
     }
   };
 
@@ -145,8 +156,8 @@ export const ProductPage = () => {
     }
 
     try {
-      const response = await fetch(
-        `http://localhost:8080/carts/${cart.id}/items`,
+      const response = await fetchWithAuth(
+        `${BASE_URL}/carts/${cart.id}/items`,
         {
           method: "DELETE",
         },
@@ -159,6 +170,7 @@ export const ProductPage = () => {
       await fetchCart();
     } catch (err: any) {
       setHttpError(err.message);
+      setShowError(true);
     }
   };
 
@@ -184,13 +196,14 @@ export const ProductPage = () => {
 
     initializeCart().catch((err: any) => {
       setHttpError(err.message);
+      setShowError(true);
     });
   }, []);
 
   // Load categories ONCE
   useEffect(() => {
     const fetchCategories = async () => {
-      const response = await fetch("http://localhost:8080/categories");
+      const response = await fetchWithAuth(`${BASE_URL}/categories`);
       if (!response.ok) throw new Error("Cannot load categories");
 
       const data: CategoryModel[] = await response.json();
@@ -198,20 +211,23 @@ export const ProductPage = () => {
       setCategories(data);
     };
 
-    fetchCategories().catch((err: any) => setHttpError(err.message));
+    fetchCategories().catch((err: any) => {
+      setHttpError(err.message);
+      setShowError(true);
+    });
   }, []);
 
   const fetchProducts = async () => {
     setIsLoadingProducts(true);
 
     try {
-      let url = "http://localhost:8080/products";
+      let url = `${BASE_URL}/products`;
 
       if (selectedCategory !== null) {
         url += `?categoryId=${selectedCategory}`;
       }
 
-      const response = await fetch(url);
+      const response = await fetchWithAuth(url);
 
       if (!response.ok) {
         throw new Error("Cannot load products");
@@ -222,6 +238,7 @@ export const ProductPage = () => {
       setProducts(data);
     } catch (err: any) {
       setHttpError(err.message);
+      setShowError(true);
     } finally {
       setIsLoadingProducts(false);
     }
@@ -236,17 +253,36 @@ export const ProductPage = () => {
 
   return (
     <div>
+      <NotificationToast
+        show={showSuccess}
+        type="success"
+        title="Success"
+        message={
+          <>
+            Order was successfully moved to orders.
+            <br />
+            Go to Orders to see all completed orders.
+          </>
+        }
+        onClose={() => setShowSuccess(false)}
+      />
+
+      <NotificationToast
+        show={showError}
+        type="error"
+        title="Error"
+        message={httpError ?? "Something went wrong."}
+        onClose={() => {
+          setShowError(false);
+          setHttpError(null);
+        }}
+      />
+
       <CategoryNavbar
         categories={categories}
         selectedCategory={selectedCategory}
         onSelect={setSelectedCategory}
       />
-
-      {httpError && (
-        <div className="alert alert-danger" role="alert">
-          {httpError}
-        </div>
-      )}
 
       <div className="d-flex">
         <div className="p-3 overflow-auto flex-grow-1">

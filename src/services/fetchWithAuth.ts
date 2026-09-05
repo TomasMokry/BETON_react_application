@@ -1,43 +1,118 @@
+import { jwtDecode } from "jwt-decode";
+
+interface JwtPayload {
+    exp: number;
+}
+
 function isTokenExpired(token: string): boolean {
     try {
-        const payload = JSON.parse(atob(token.split(".")[1]));
+         const payload = jwtDecode<JwtPayload>(token);
 
-        if (!payload) {
+        if (!payload.exp) {
             return true;
         }
 
         const currentTime = Math.floor(Date.now() / 1000);
+
         return payload.exp < currentTime + 10;
     } catch (error) {
-        console.error("Error parsing token, error")
+        console.error("Error parsing token:", error);
         return true;
     }
 }
 
-export async function  fetchWithAuth(url: string, options: RequestInit = {}) : Promise<Response> {
-    const token = localStorage.getItem("token");
+async function refreshAccessToken(): Promise<string | null> {
+    try {
+        const response = await fetch(
+            "http://localhost:8080/auth/refresh",
+            {
+                method: "POST",
+                credentials: "include",
+            }
+        );
 
-    if(!token) {
-        localStorage.removeItem("token");
+        if (!response.ok) {
+            return null;
+        }
+
+        const data: { token: string } = await response.json();
+
+        localStorage.setItem("token", data.token);
+
+        return data.token;
+    } catch (error) {
+        console.error("Failed to refresh access token:", error);
+        return null;
+    }
+}
+
+export async function fetchWithAuth(
+    url: string,
+    options: RequestInit = {}
+): Promise<Response> {
+
+    let token = localStorage.getItem("token");
+
+    if (!token) {
         window.location.href = "/";
         throw new Error("No authentication token found");
     }
 
-        if(isTokenExpired(token)) {
-        localStorage.removeItem("token");
-        window.location.href = "/";
-        throw new Error("Authentication token expired");
+    // --------------------------------------------------
+    // 1. Check whether access token is expired
+    // --------------------------------------------------
+
+    if (isTokenExpired(token)) {
+        const newToken = await refreshAccessToken();
+
+        if (!newToken) {
+            localStorage.removeItem("token");
+            window.location.href = "/";
+            throw new Error("Authentication session expired");
+        }
+
+        token = newToken;
     }
 
-    const headers = {
-        ...options.headers,
-        "Authorization": `Bearer ${token}`
-    }
+    // --------------------------------------------------
+    // 2. Make original request
+    // --------------------------------------------------
 
-    const response = await fetch(url, {
+    const headers = new Headers(options.headers);
+    headers.set("Authorization", `Bearer ${token}`);
+
+    let response = await fetch(url, {
         ...options,
-        headers
+        headers,
     });
+
+    // --------------------------------------------------
+    // 3. If backend returns 401, try refreshing once
+    // --------------------------------------------------
+
+    if (response.status === 401) {
+        const newToken = await refreshAccessToken();
+
+        if (!newToken) {
+            localStorage.removeItem("token");
+            window.location.href = "/";
+            throw new Error("Authentication failed");
+        }
+
+        token = newToken;
+
+        const retryHeaders = new Headers(options.headers);
+        retryHeaders.set("Authorization", `Bearer ${token}`);
+
+        response = await fetch(url, {
+            ...options,
+            headers: retryHeaders,
+        });
+    }
+
+    // --------------------------------------------------
+    // 4. If retry also failed
+    // --------------------------------------------------
 
     if (response.status === 401) {
         localStorage.removeItem("token");
@@ -45,5 +120,5 @@ export async function  fetchWithAuth(url: string, options: RequestInit = {}) : P
         throw new Error("Authentication failed");
     }
 
-    return response
+    return response;
 }
